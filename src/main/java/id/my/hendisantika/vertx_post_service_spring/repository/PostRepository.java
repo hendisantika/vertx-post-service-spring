@@ -88,4 +88,10 @@ public class PostRepository {
       .execute(Tuple.of(data.getTitle(), data.getContent(), data.getId()))
       .map(SqlResult::rowCount);
   }
+
+  public Future<Integer> deleteAll() {
+    return client.query("DELETE FROM posts").execute()
+      .map(SqlResult::rowCount);
+  }
+
 }
