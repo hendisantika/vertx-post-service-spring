@@ -1,11 +1,13 @@
 package id.my.hendisantika.vertx_post_service_spring;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.spi.VerticleFactory;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,13 +49,28 @@ public class TestMainVerticle {
     testContext.completeNow();
   }
 
-  @BeforeEach
-  void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-    vertx.deployVerticle(new MainVerticle()).onComplete(testContext.succeeding(id -> testContext.completeNow()));
+  @Test
+  void testGetAll(VertxTestContext testContext) {
+    LOGGER.log(Level.INFO, "running test: {0}", "testGetAll");
+    var options = new HttpClientOptions()
+      .setDefaultPort(8888);
+    var client = vertx.createHttpClient(options);
+
+    client.request(HttpMethod.GET, "/posts")
+      .flatMap(req -> req.send().flatMap(HttpClientResponse::body))
+      .onSuccess(
+        buffer -> testContext.verify(
+          () -> {
+            LOGGER.log(Level.INFO, "response buffer: {0}", new Object[]{buffer.toString()});
+            assertThat(buffer.toJsonArray().size()).isGreaterThan(0);
+            testContext.completeNow();
+          }
+        )
+      )
+      .onFailure(e -> {
+        LOGGER.log(Level.ALL, "error: {0}", e.getMessage());
+        testContext.failNow(e);
+      });
   }
 
-  @Test
-  void verticle_deployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
-    testContext.completeNow();
-  }
 }
