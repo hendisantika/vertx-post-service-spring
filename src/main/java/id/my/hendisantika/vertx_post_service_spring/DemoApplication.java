@@ -3,6 +3,7 @@ package id.my.hendisantika.vertx_post_service_spring;
 import io.vertx.core.Vertx;
 import io.vertx.core.spi.VerticleFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,5 +28,12 @@ public class DemoApplication {
 
     // deploy MainVerticle via verticle identifier name
     vertx.deployVerticle(factory.prefix() + ":" + MainVerticle.class.getName());
+  }
+
+  @Bean
+  public Vertx vertx(VerticleFactory verticleFactory) {
+    Vertx vertx = Vertx.vertx();
+    vertx.registerVerticleFactory(verticleFactory);
+    return vertx;
   }
 }
