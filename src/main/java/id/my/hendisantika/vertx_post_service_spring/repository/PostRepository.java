@@ -82,4 +82,10 @@ public class PostRepository {
       .executeBatch(tuples)
       .map(SqlResult::rowCount);
   }
+
+  public Future<Integer> update(Post data) {
+    return client.preparedQuery("UPDATE posts SET title=$1, content=$2 WHERE id=$3")
+      .execute(Tuple.of(data.getTitle(), data.getContent(), data.getId()))
+      .map(SqlResult::rowCount);
+  }
 }
