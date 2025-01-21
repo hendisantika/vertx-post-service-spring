@@ -1,8 +1,10 @@
 package id.my.hendisantika.vertx_post_service_spring;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.spi.VerticleFactory;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,6 +25,18 @@ public class TestMainVerticle {
   ApplicationContext context;
 
   Vertx vertx;
+
+  @BeforeAll
+  public void setupAll(VertxTestContext testContext) {
+    vertx = context.getBean(Vertx.class);
+    var factory = context.getBean(VerticleFactory.class);
+    vertx.deployVerticle(factory.prefix() + ":" + MainVerticle.class.getName())
+      .onSuccess(id -> {
+        LOGGER.info("deployed:" + id);
+        testContext.completeNow();
+      })
+      .onFailure(testContext::failNow);
+  }
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
