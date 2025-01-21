@@ -72,4 +72,28 @@ class PostsHandler {
 
       );
   }
+
+  public void update(RoutingContext rc) {
+    var params = rc.pathParams();
+    var id = params.get("id");
+    var body = rc.body().asJsonObject();
+    LOGGER.log(Level.INFO, "\npath param id: {0}\nrequest body: {1}", new Object[]{id, body});
+    var form = body.mapTo(CreatePostCommand.class);
+    this.posts.findById(UUID.fromString(id))
+      .compose(
+        post -> {
+          post.setTitle(form.title());
+          post.setContent(form.content());
+
+          return this.posts.update(post);
+        }
+      )
+      .onSuccess(
+        data -> rc.response().setStatusCode(204).end()
+      )
+      .onFailure(
+        throwable -> rc.fail(404, throwable)
+      );
+  }
+
 }
