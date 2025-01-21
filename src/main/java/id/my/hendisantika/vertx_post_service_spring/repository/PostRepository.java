@@ -1,13 +1,18 @@
 package id.my.hendisantika.vertx_post_service_spring.repository;
 
+import id.my.hendisantika.vertx_post_service_spring.exception.PostNotFoundException;
 import id.my.hendisantika.vertx_post_service_spring.model.Post;
 import io.vertx.core.Future;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.StreamSupport;
@@ -45,5 +50,17 @@ public class PostRepository {
         .map(MAPPER)
         .toList()
       );
+  }
+
+  public Future<Post> findById(UUID id) {
+    Objects.requireNonNull(id, "id can not be null");
+    return client.preparedQuery("SELECT * FROM posts WHERE id=$1").execute(Tuple.of(id))
+      .map(RowSet::iterator)
+      .map(iterator -> {
+        if (iterator.hasNext()) {
+          return MAPPER.apply(iterator.next());
+        }
+        throw new PostNotFoundException(id);
+      });
   }
 }
