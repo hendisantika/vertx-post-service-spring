@@ -94,4 +94,9 @@ public class PostRepository {
       .map(SqlResult::rowCount);
   }
 
+  public Future<Integer> deleteById(UUID id) {
+    Objects.requireNonNull(id, "id can not be null");
+    return client.preparedQuery("DELETE FROM posts WHERE id=$1").execute(Tuple.of(id))
+      .map(SqlResult::rowCount);
+  }
 }
