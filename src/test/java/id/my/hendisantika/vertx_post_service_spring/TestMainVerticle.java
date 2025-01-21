@@ -5,10 +5,24 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.util.logging.Logger;
+
+@SpringJUnitConfig(classes = DemoApplication.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(VertxExtension.class)
 public class TestMainVerticle {
+  private final static Logger LOGGER = Logger.getLogger(TestMainVerticle.class.getName());
+
+  @Autowired
+  ApplicationContext context;
+
+  Vertx vertx;
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
