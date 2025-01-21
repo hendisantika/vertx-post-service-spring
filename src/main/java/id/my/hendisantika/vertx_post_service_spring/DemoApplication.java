@@ -2,6 +2,9 @@ package id.my.hendisantika.vertx_post_service_spring;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.spi.VerticleFactory;
+import io.vertx.pgclient.PgConnectOptions;
+import io.vertx.sqlclient.Pool;
+import io.vertx.sqlclient.PoolOptions;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,5 +38,21 @@ public class DemoApplication {
     Vertx vertx = Vertx.vertx();
     vertx.registerVerticleFactory(verticleFactory);
     return vertx;
+  }
+
+  @Bean
+  public Pool pgPool(Vertx vertx) {
+    PgConnectOptions connectOptions = new PgConnectOptions()
+      .setPort(5432)
+      .setHost("localhost")
+      .setDatabase("blogdb")
+      .setUser("user")
+      .setPassword("password");
+
+    // Pool Options
+    PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
+
+    // Create the pool from the data object
+    return Pool.pool(vertx, connectOptions, poolOptions);
   }
 }
