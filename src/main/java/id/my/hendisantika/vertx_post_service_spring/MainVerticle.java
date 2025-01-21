@@ -10,6 +10,7 @@ import io.vertx.core.json.jackson.DatabindCodec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -44,5 +45,44 @@ public class MainVerticle extends AbstractVerticle {
         startPromise.fail(http.cause());
       }
     });
+  }
+
+  @Override
+  public void start(Promise<Void> startPromise) throws Exception {
+    LOGGER.log(Level.INFO, "Starting HTTP server...");
+    //setupLogging();
+
+    //Create a PgPool instance
+    //var pgPool = pgPool();
+
+    //Creating PostRepository
+    //var postRepository = PostRepository.create(pgPool);
+
+    //Creating PostHandler
+    //var postHandlers = PostsHandler.create(postRepository);
+
+    // Initializing the sample data
+//        var initializer = DataInitializer.create(pgPool);
+//        initializer.run();
+
+    // Configure routes
+    var router = routes(postHandlers);
+
+    // Create the HTTP server
+    vertx.createHttpServer()
+      // Handle every request using the router
+      .requestHandler(router)
+      // Start listening
+      .listen(8888)
+      // Print the port
+      .onSuccess(server -> {
+        startPromise.complete();
+        System.out.println("HTTP server started on port " + server.actualPort());
+      })
+      .onFailure(event -> {
+        startPromise.fail(event);
+        System.out.println("Failed to start HTTP server:" + event.getMessage());
+      })
+    ;
   }
 }
