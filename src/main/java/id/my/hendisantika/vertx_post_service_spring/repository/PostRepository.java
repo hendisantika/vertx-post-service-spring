@@ -1,13 +1,16 @@
 package id.my.hendisantika.vertx_post_service_spring.repository;
 
 import id.my.hendisantika.vertx_post_service_spring.model.Post;
+import io.vertx.core.Future;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Row;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,4 +37,13 @@ public class PostRepository {
 
 
   private final Pool client;
+
+  public Future<List<Post>> findAll() {
+    return client.query("SELECT * FROM posts ORDER BY id ASC")
+      .execute()
+      .map(rs -> StreamSupport.stream(rs.spliterator(), false)
+        .map(MAPPER)
+        .toList()
+      );
+  }
 }
