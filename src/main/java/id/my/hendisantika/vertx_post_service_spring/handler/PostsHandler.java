@@ -6,6 +6,7 @@ import io.vertx.ext.web.RoutingContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -34,6 +35,18 @@ class PostsHandler {
     this.posts.findAll()
       .onSuccess(
         data -> rc.response().end(Json.encode(data))
+      );
+  }
+
+  public void get(RoutingContext rc) {
+    var params = rc.pathParams();
+    var id = params.get("id");
+    this.posts.findById(UUID.fromString(id))
+      .onSuccess(
+        post -> rc.response().end(Json.encode(post))
+      )
+      .onFailure(
+        throwable -> rc.fail(404, throwable)
       );
   }
 }
