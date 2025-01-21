@@ -96,4 +96,20 @@ class PostsHandler {
       );
   }
 
+  public void delete(RoutingContext rc) {
+    var params = rc.pathParams();
+    var id = params.get("id");
+
+    var uuid = UUID.fromString(id);
+    this.posts.findById(uuid)
+      .compose(
+        post -> this.posts.deleteById(uuid)
+      )
+      .onSuccess(
+        data -> rc.response().setStatusCode(204).end()
+      )
+      .onFailure(
+        throwable -> rc.fail(404, throwable)
+      );
+  }
 }
