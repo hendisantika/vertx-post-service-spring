@@ -19,4 +19,9 @@ import org.springframework.stereotype.Component;
 public class SpringAwareVerticleFactory implements VerticleFactory, ApplicationContextAware {
 
   private ApplicationContext applicationContext;
+
+  @Override
+  public String prefix() {
+    return "spring";
+  }
 }
