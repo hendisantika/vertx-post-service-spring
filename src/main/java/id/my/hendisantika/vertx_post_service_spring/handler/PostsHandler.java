@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  */
 @Component
 @RequiredArgsConstructor
-class PostsHandler {
+public class PostsHandler {
   private static final Logger LOGGER = Logger.getLogger(PostsHandler.class.getSimpleName());
 
   private final PostRepository posts;
