@@ -1,5 +1,7 @@
 package id.my.hendisantika.vertx_post_service_spring.handler;
 
+import id.my.hendisantika.vertx_post_service_spring.CreatePostCommand;
+import id.my.hendisantika.vertx_post_service_spring.model.Post;
 import id.my.hendisantika.vertx_post_service_spring.repository.PostRepository;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
@@ -7,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -47,6 +50,26 @@ class PostsHandler {
       )
       .onFailure(
         throwable -> rc.fail(404, throwable)
+      );
+  }
+
+  public void save(RoutingContext rc) {
+    //rc.getBodyAsJson().mapTo(PostForm.class)
+    var body = rc.body().asJsonObject();
+    LOGGER.log(Level.INFO, "request body: {0}", body);
+    var form = body.mapTo(CreatePostCommand.class);
+    this.posts
+      .save(Post.builder()
+        .title(form.title())
+        .content(form.content())
+        .build()
+      )
+      .onSuccess(
+        savedId -> rc.response()
+          .putHeader("Location", "/posts/" + savedId)
+          .setStatusCode(201)
+          .end()
+
       );
   }
 }
