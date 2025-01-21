@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -68,5 +69,17 @@ public class PostRepository {
     return client.preparedQuery("INSERT INTO posts(title, content) VALUES ($1, $2) RETURNING (id)")
       .execute(Tuple.of(data.getTitle(), data.getContent()))
       .map(rs -> rs.iterator().next().getUUID("id"));
+  }
+
+  public Future<Integer> saveAll(List<Post> data) {
+    var tuples = data.stream()
+      .map(
+        d -> Tuple.of(d.getTitle(), d.getContent())
+      )
+      .toList();
+
+    return client.preparedQuery("INSERT INTO posts (title, content) VALUES ($1, $2)")
+      .executeBatch(tuples)
+      .map(SqlResult::rowCount);
   }
 }
