@@ -7,6 +7,8 @@ import id.my.hendisantika.vertx_post_service_spring.handler.PostsHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.jackson.DatabindCodec;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -84,5 +86,23 @@ public class MainVerticle extends AbstractVerticle {
         System.out.println("Failed to start HTTP server:" + event.getMessage());
       })
     ;
+  }
+
+  //create routes
+  private Router routes(PostsHandler handlers) {
+
+    // Create a Router
+    Router router = Router.router(vertx);
+    // register BodyHandler globally.
+    //router.route().handler(BodyHandler.create());
+    router.get("/posts").produces("application/json").handler(handlers::all);
+    router.post("/posts").consumes("application/json").handler(BodyHandler.create()).handler(handlers::save);
+    router.get("/posts/:id").produces("application/json").handler(handlers::get).failureHandler(frc -> frc.response().setStatusCode(404).end());
+    router.put("/posts/:id").consumes("application/json").handler(BodyHandler.create()).handler(handlers::update);
+    router.delete("/posts/:id").handler(handlers::delete);
+
+    router.get("/hello").handler(rc -> rc.response().end("Hello from my route"));
+
+    return router;
   }
 }
