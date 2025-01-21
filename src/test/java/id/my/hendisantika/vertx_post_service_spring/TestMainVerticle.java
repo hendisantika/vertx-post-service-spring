@@ -15,6 +15,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.logging.Logger;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringJUnitConfig(classes = DemoApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(VertxExtension.class)
@@ -36,6 +38,12 @@ public class TestMainVerticle {
         testContext.completeNow();
       })
       .onFailure(testContext::failNow);
+  }
+
+  @Test
+  public void testVertx(VertxTestContext testContext) {
+    assertThat(vertx).isNotNull();
+    testContext.completeNow();
   }
 
   @BeforeEach
