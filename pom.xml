@@ -24,7 +24,7 @@
     <launcher.class>io.vertx.core.Launcher</launcher.class>
     <assertj-core.version>3.27.7</assertj-core.version>
     <jackson.version>2.21.0</jackson.version>
-    <spring-framework.version>7.0.4</spring-framework.version>
+    <spring-framework.version>7.0.5</spring-framework.version>
     <lombok.version>1.18.42</lombok.version>
   </properties>
 
