@@ -35,7 +35,9 @@ public class TestMainVerticle {
   public void setupAll(VertxTestContext testContext) {
     vertx = context.getBean(Vertx.class);
     var factory = context.getBean(VerticleFactory.class);
-    vertx.deployVerticle(factory.prefix() + ":" + MainVerticle.class.getName())
+    // wait for the sample data to be seeded before deploying, to avoid racing with DataInitializer
+    context.getBean(DataInitializer.class).ready()
+      .compose(v -> vertx.deployVerticle(factory.prefix() + ":" + MainVerticle.class.getName()))
       .onSuccess(id -> {
         LOGGER.info("deployed:" + id);
         testContext.completeNow();

@@ -38,7 +38,8 @@ public class PostsHandler {
     this.posts.findAll()
       .onSuccess(
         data -> rc.response().end(Json.encode(data))
-      );
+      )
+      .onFailure(rc::fail);
   }
 
   public void get(RoutingContext rc) {

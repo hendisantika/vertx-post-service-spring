@@ -1,5 +1,7 @@
 package id.my.hendisantika.vertx_post_service_spring;
 
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Tuple;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,15 @@ public class DataInitializer {
 
   private final Pool client;
 
+  private final Promise<Void> ready = Promise.promise();
+
+  /**
+   * Completes once the sample data has been (re)initialized, or fails if initialization failed.
+   */
+  public Future<Void> ready() {
+    return ready.future();
+  }
+
   @EventListener(ContextRefreshedEvent.class)
   public void run() {
     LOGGER.info("Data initialization is starting...");
@@ -52,6 +63,11 @@ public class DataInitializer {
         r -> {
           //client.close(); will block the application.
           LOGGER.info("Data initialization is done...");
+          if (r.succeeded()) {
+            ready.tryComplete();
+          } else {
+            ready.tryFail(r.cause());
+          }
         }
       )
       .onFailure(
